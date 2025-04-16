@@ -1,0 +1,5 @@
+{
+  "start_date": [2025, 1, 2, 0, 0],
+  "end_date": [2025, 1, 10, 23, 59],
+  "_comment": "Dates follow [YYYY, Month, Day, Hour, Minute] format — January 10, 2025, 23:59 (one minute before midnight)"
+}
