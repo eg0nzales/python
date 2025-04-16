@@ -1,3 +1,14 @@
+import json
+
+with open("survey_ids.json", "r") as f:
+    config = json.load(f)
+
+survey_id_1 = config["survey_id_1"]
+survey_id_2 = config["survey_id_2"]
+
+print("Core Survey ID:", survey_id_1)
+print("Custom Survey ID:", survey_id_2)
+
 import requests
 import pandas as pd
 from datetime import datetime
@@ -8,8 +19,6 @@ import unicodedata
 # Set up your API key, server domain, and survey IDs
 api_key = "uqdpv1ehf12fc3bangxb9kh4m7y0wbp5ffrp87qxt5kssvsxcfncfqm3d4z6dvnm"
 server_domain = "https://nrc.decipherinc.com/api/v1/"
-survey_id_1 = "selfserve/53b/250302"  # EDIT Core survey
-survey_id_2 = "selfserve/53b/250303"  # EDIT Custom survey
 start_date = datetime(2025, 1, 2, 0, 0)  # EDIT [YYYY, Month, Date, Hour, Second] January 2, 2025, 00:00 (midnight)
 end_date = datetime(2025, 1, 10, 23, 59)  # EDIT [YYYY, M, DD, HH, SS] January 10, 2025, 23:59 (one minute before midnight)
 
