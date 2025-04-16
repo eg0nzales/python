@@ -1,0 +1,12 @@
+import json
+
+with open("survey_ids.json", "r") as f:
+    config = json.load(f)
+
+survey_id_1 = config["survey_id_1"]
+survey_id_2 = config["survey_id_2"]
+
+print("Core Survey ID:", survey_id_1)
+print("Custom Survey ID:", survey_id_2)
+
+# Your existing code continues...
