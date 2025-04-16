@@ -96,7 +96,7 @@ def download_survey_data(survey_id, survey_type):
             test_date = filtered_df['date'].dt.strftime("%m%d%y").iloc[0]
             
             # Create directory path based on date
-            year = filtered_df['date'].dt.year.iloc[0]
+            year = 2030
             month_year = filtered_df['date'].dt.strftime("%m.%Y").iloc[0]
             base_directory = f"T:/MarketInsights/HCMG2008/Kinesis/Data (Investigate further)/{year}/{month_year}"
             if not os.path.exists(base_directory):
