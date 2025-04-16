@@ -1,5 +1,6 @@
 import json
-from datetime import datetime
+from datetime import datetime, date  # Import date to get today's date
+import os  # Import os module for directory operations
 
 with open("Completes_ids.json", "r") as f:
     config = json.load(f)
@@ -15,6 +16,21 @@ with open('Completes_dates.json', 'r') as f:
 
 start_date = datetime(*time_data['start_date'])  # Unpacks the list into datetime
 end_date = datetime(*time_data['end_date'])
+
+# Base directory for saving files
+base_directory = r"T:\MarketInsights\HCMG2008\Kinesis\Data (Investigate further)"
+
+# Function to construct the directory path based on the date
+def construct_directory_path(base_dir, date):
+    year = date.strftime("%Y")
+    month_year = date.strftime("%m.%Y")
+    return os.path.join(base_dir, year, month_year)
+
+# Function to construct the file name based on the format
+def construct_file_name(survey_type, survey_date):
+    today_date = date.today().strftime("%m%d%y")  # Format today's date as MMDDYY
+    year_month = survey_date.strftime("%Y_%m")   # Format survey date as YYYY_MM
+    return f"Decipher.{year_month}.{survey_type}.{today_date}"
 
 import requests
 import pandas as pd
@@ -98,6 +114,10 @@ def download_survey_data(survey_id, survey_type):
             for col in filtered_df.columns:
                 filtered_df[col] = filtered_df[col].map(clean_and_normalize_text)
             
+            # Truncate the "Q0009017T" column to a length limit of 90 characters
+            if 'Q0009017T' in filtered_df.columns:
+                filtered_df['Q0009017T'] = filtered_df['Q0009017T'].str[:90]
+            
             # Convert DataFrame to string type to ensure 'nan' replacement
             filtered_df = filtered_df.astype(str)
             
@@ -108,10 +128,14 @@ def download_survey_data(survey_id, survey_type):
             filtered_df['date'] = pd.to_datetime(filtered_df['date'], errors='coerce')
             date = filtered_df['date'].dt.strftime("%B %Y").iloc[0]
             
-            # Remove the 'date' column
-            filtered_df = filtered_df.drop(columns=['date'])
+            # Construct the directory path
+            save_directory = construct_directory_path(base_directory, filtered_df['date'].iloc[0])
+            os.makedirs(save_directory, exist_ok=True)  # Create the directory if it doesn't exist
             
-            csv_file_name = f"{date} - {survey_type}.dat"
+            # Construct the file name
+            file_name = construct_file_name(survey_type, filtered_df['date'].iloc[0])
+            csv_file_name = os.path.join(save_directory, f"{file_name}.dat")
+            
             # Save the file with utf-8 encoding to ensure compatibility
             filtered_df.to_csv(csv_file_name, sep="\t", index=False, na_rep='', encoding='utf-8')
 
@@ -133,7 +157,8 @@ try:
         custom_df, custom_csv_file = download_survey_data(survey_id_2, "Custom")
 
         if custom_df is not None and custom_csv_file is not None:
-            original_custom_csv_file = custom_csv_file.replace("Custom", "Custom Removed")
+            original_custom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
+            original_custom_csv_file = os.path.join(save_directory, f"{original_custom_file_name}.dat")
             custom_df = custom_df.astype(str)
             custom_df.to_csv(original_custom_csv_file, sep="\t", index=False)
             print(f"Original Custom survey data saved to '{original_custom_csv_file}'")
@@ -141,12 +166,14 @@ try:
             filtered_custom_df = custom_df[custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
             removed_custom_df = custom_df[~custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
 
-            filtered_custom_csv_file = core_csv_file.replace("Core", "Custom")
+            filtered_custom_file_name = construct_file_name("Custom", core_df['date'].iloc[0])
+            filtered_custom_csv_file = os.path.join(save_directory, f"{filtered_custom_file_name}.dat")
             filtered_custom_df = filtered_custom_df.astype(str)
             filtered_custom_df.to_csv(filtered_custom_csv_file, sep="\t", index=False)
             print(f"Filtered Custom survey data saved to '{filtered_custom_csv_file}'")
 
-            removed_custom_csv_file = core_csv_file.replace("Core", "Custom Removed")
+            removed_custom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
+            removed_custom_csv_file = os.path.join(save_directory, f"{removed_custom_file_name}.dat")
             removed_custom_df = removed_custom_df.astype(str)
             removed_custom_df.to_csv(removed_custom_csv_file, sep="\t", index=False)
             print(f"Removed Custom survey data saved to '{removed_custom_csv_file}'")
