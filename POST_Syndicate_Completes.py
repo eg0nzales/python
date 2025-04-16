@@ -1,6 +1,7 @@
 import json
+from datetime import datetime
 
-with open("survey_ids.json", "r") as f:
+with open("Completes_ids.json", "r") as f:
     config = json.load(f)
 
 survey_id_1 = config["survey_id_1"]
@@ -9,9 +10,15 @@ survey_id_2 = config["survey_id_2"]
 print("Core Survey ID:", survey_id_1)
 print("Custom Survey ID:", survey_id_2)
 
+with open('Completes_dates.json', 'r') as f:
+    time_data = json.load(f)
+
+start_date = datetime(*time_data['start_date'])  # Unpacks the list into datetime
+end_date = datetime(*time_data['end_date'])
+
 import requests
 import pandas as pd
-from datetime import datetime
+
 from tqdm import tqdm
 import io
 import unicodedata
@@ -19,8 +26,6 @@ import unicodedata
 # Set up your API key, server domain, and survey IDs
 api_key = "uqdpv1ehf12fc3bangxb9kh4m7y0wbp5ffrp87qxt5kssvsxcfncfqm3d4z6dvnm"
 server_domain = "https://nrc.decipherinc.com/api/v1/"
-start_date = datetime(2025, 1, 2, 0, 0)  # EDIT [YYYY, Month, Date, Hour, Second] January 2, 2025, 00:00 (midnight)
-end_date = datetime(2025, 1, 10, 23, 59)  # EDIT [YYYY, M, DD, HH, SS] January 10, 2025, 23:59 (one minute before midnight)
 
 # Function to format datetime columns
 def format_datetime(value):
