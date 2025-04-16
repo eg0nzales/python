@@ -19,8 +19,6 @@ import os
 # Set up your API key, server domain, and survey IDs
 api_key = "uqdpv1ehf12fc3bangxb9kh4m7y0wbp5ffrp87qxt5kssvsxcfncfqm3d4z6dvnm"
 server_domain = "https://nrc.decipherinc.com/api/v1/"
-survey_id_1 = "selfserve/53b/250302"  # Core survey
-survey_id_2 = "selfserve/53b/250303"  # Custom survey
 
 # Function to format datetime columns
 def format_datetime(value):
