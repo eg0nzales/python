@@ -1,6 +1,6 @@
 import json
-from datetime import datetime, date  # Import date to get today's date
-import os  # Import os module for directory operations
+from datetime import datetime, date 
+import os
 
 with open("Completes_ids.json", "r") as f:
     config = json.load(f)
@@ -88,7 +88,7 @@ def download_survey_data(survey_id, survey_type):
  
             if filtered_df.empty:
                 print(f"No qualified data found for survey {survey_id}.")
-                return None, None
+                return None, None, None
          
             # Process numeric columns
             for col in filtered_df.columns[4:]:
@@ -140,25 +140,26 @@ def download_survey_data(survey_id, survey_type):
             filtered_df.to_csv(csv_file_name, sep="\t", index=False, na_rep='', encoding='utf-8')
 
             print(f"Qualified data downloaded successfully and saved to '{csv_file_name}'")
-            return filtered_df, csv_file_name
+            return filtered_df, csv_file_name, save_directory
         except Exception as e:
             print(f"An error occurred while processing data for survey {survey_id}: {e}")
-            return None, None
+            return None, None, None
     else:
         print(f"Error downloading data for survey {survey_id}: {response.status_code}")
-        return None, None
+        return None, None, None
 
 try:
-    core_df, core_csv_file = download_survey_data(survey_id_1, "Core")
+    core_df, core_csv_file, core_save_directory = download_survey_data(survey_id_1, "Core")
 
     if core_df is not None and core_csv_file is not None:
         core_record_ids = set(core_df.iloc[:, 0].astype(str))
         
-        custom_df, custom_csv_file = download_survey_data(survey_id_2, "Custom")
+        custom_df, custom_csv_file, custom_save_directory = download_survey_data(survey_id_2, "Custom")
 
         if custom_df is not None and custom_csv_file is not None:
+            # Use the correct save directory returned from the function
             original_custom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
-            original_custom_csv_file = os.path.join(save_directory, f"{original_custom_file_name}.dat")
+            original_custom_csv_file = os.path.join(custom_save_directory, f"{original_custom_file_name}.dat")
             custom_df = custom_df.astype(str)
             custom_df.to_csv(original_custom_csv_file, sep="\t", index=False)
             print(f"Original Custom survey data saved to '{original_custom_csv_file}'")
@@ -167,13 +168,13 @@ try:
             removed_custom_df = custom_df[~custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
 
             filtered_custom_file_name = construct_file_name("Custom", core_df['date'].iloc[0])
-            filtered_custom_csv_file = os.path.join(save_directory, f"{filtered_custom_file_name}.dat")
+            filtered_custom_csv_file = os.path.join(custom_save_directory, f"{filtered_custom_file_name}.dat")
             filtered_custom_df = filtered_custom_df.astype(str)
             filtered_custom_df.to_csv(filtered_custom_csv_file, sep="\t", index=False)
             print(f"Filtered Custom survey data saved to '{filtered_custom_csv_file}'")
 
             removed_custom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
-            removed_custom_csv_file = os.path.join(save_directory, f"{removed_custom_file_name}.dat")
+            removed_custom_csv_file = os.path.join(custom_save_directory, f"{removed_custom_file_name}.dat")
             removed_custom_df = removed_custom_df.astype(str)
             removed_custom_df.to_csv(removed_custom_csv_file, sep="\t", index=False)
             print(f"Removed Custom survey data saved to '{removed_custom_csv_file}'")
