@@ -165,11 +165,15 @@ try:
             filtered_custom_df = custom_df[custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
             removed_custom_df = custom_df[~custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
 
-            # Drop the last column from all DataFrames before saving
-            custom_df = custom_df.iloc[:, :-1]
-            core_df = core_df.iloc[:, :-1]
-            filtered_custom_df = filtered_custom_df.iloc[:, :-1]
-            removed_custom_df = removed_custom_df.iloc[:, :-1]
+            # Explicitly drop the 'date' column from all DataFrames before saving
+            if 'date' in custom_df.columns:
+                custom_df = custom_df.drop(columns=['date'], errors='ignore')
+            if 'date' in core_df.columns:
+                core_df = core_df.drop(columns=['date'], errors='ignore')
+            if 'date' in filtered_custom_df.columns:
+                filtered_custom_df = filtered_custom_df.drop(columns=['date'], errors='ignore')
+            if 'date' in removed_custom_df.columns:
+                removed_custom_df = removed_custom_df.drop(columns=['date'], errors='ignore')
 
             # Save the original custom survey data
             original_custom_file_name = construct_file_name("Custom Removed", core_date)
