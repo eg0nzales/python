@@ -194,3 +194,6 @@ try:
             print(f"Matched Custom Records: {matched_custom}")
             print(f"Unmatched Custom Records: {unmatched_custom}")
             print(f"Completion Rate: {matched_custom / total_custom * 100:.2f}%")
+        
+        except Exception as e:
+            print(f"An error occurred: {e}")
