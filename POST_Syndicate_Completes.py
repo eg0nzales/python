@@ -165,6 +165,13 @@ try:
             filtered_custom_df = custom_df[custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
             removed_custom_df = custom_df[~custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
 
+            # Debug: Check if 'date' column exists
+            print("Before dropping 'date':")
+            print("custom_df columns:", custom_df.columns)
+            print("core_df columns:", core_df.columns)
+            print("filtered_custom_df columns:", filtered_custom_df.columns)
+            print("removed_custom_df columns:", removed_custom_df.columns)
+
             # Explicitly drop the 'date' column from all DataFrames before saving
             if 'date' in custom_df.columns:
                 custom_df = custom_df.drop(columns=['date'], errors='ignore')
@@ -174,6 +181,19 @@ try:
                 filtered_custom_df = filtered_custom_df.drop(columns=['date'], errors='ignore')
             if 'date' in removed_custom_df.columns:
                 removed_custom_df = removed_custom_df.drop(columns=['date'], errors='ignore')
+
+            # Forcefully drop the last column if 'date' persists
+            custom_df = custom_df.iloc[:, :-1] if 'date' in custom_df.columns else custom_df
+            core_df = core_df.iloc[:, :-1] if 'date' in core_df.columns else core_df
+            filtered_custom_df = filtered_custom_df.iloc[:, :-1] if 'date' in filtered_custom_df.columns else filtered_custom_df
+            removed_custom_df = removed_custom_df.iloc[:, :-1] if 'date' in removed_custom_df.columns else removed_custom_df
+
+            # Debug: Check if 'date' column is removed
+            print("After dropping 'date':")
+            print("custom_df columns:", custom_df.columns)
+            print("core_df columns:", core_df.columns)
+            print("filtered_custom_df columns:", filtered_custom_df.columns)
+            print("removed_custom_df columns:", removed_custom_df.columns)
 
             # Save the original custom survey data
             original_custom_file_name = construct_file_name("Custom Removed", core_date)
