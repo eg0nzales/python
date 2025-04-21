@@ -157,42 +157,40 @@ try:
         custom_df, custom_csv_file, custom_save_directory = download_survey_data(survey_id_2, "Custom")
 
         if custom_df is not None and custom_csv_file is not None:
-            # Extract the date value before dropping the 'date' column
-            core_date = core_df['date'].iloc[0]  # Extract as datetime object
-            custom_date = custom_df['date'].iloc[0]  # Extract as datetime object
-
-            # Perform all operations requiring the 'date' column first
+           # Replace 'date' column with 'endtime' for file naming and date extraction
+            core_date = pd.to_datetime(core_df['endtime'].iloc[0])  # Use 'endtime' instead of 'date'
+            custom_date = pd.to_datetime(custom_df['endtime'].iloc[0])  # Use 'endtime' instead of 'date'
+            
+            # Perform all operations requiring the 'endtime' (formerly 'date') column first
             filtered_custom_df = custom_df[custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
             removed_custom_df = custom_df[~custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
-
+            
             # Save the original custom survey data
             original_custom_file_name = construct_file_name("Custom Removed", core_date)
             original_custom_csv_file = os.path.join(custom_save_directory, f"{original_custom_file_name}.dat")
             custom_df = custom_df.astype(str)
             custom_df.to_csv(original_custom_csv_file, sep="\t", index=False)
             print(f"Original Custom survey data saved to '{original_custom_csv_file}'")
-
+            
             # Save the filtered custom survey data
             filtered_custom_file_name = construct_file_name("Custom", core_date)
             filtered_custom_csv_file = os.path.join(custom_save_directory, f"{filtered_custom_file_name}.dat")
             filtered_custom_df = filtered_custom_df.astype(str)
             filtered_custom_df.to_csv(filtered_custom_csv_file, sep="\t", index=False)
             print(f"Filtered Custom survey data saved to '{filtered_custom_csv_file}'")
-
+            
             # Save the removed custom survey data
             removed_custom_file_name = construct_file_name("Custom Removed", core_date)
             removed_custom_csv_file = os.path.join(custom_save_directory, f"{removed_custom_file_name}.dat")
             removed_custom_df = removed_custom_df.astype(str)
             removed_custom_df.to_csv(removed_custom_csv_file, sep="\t", index=False)
             print(f"Removed Custom survey data saved to '{removed_custom_csv_file}'")
-
+            
             total_custom = len(custom_df)
             matched_custom = len(filtered_custom_df)
             unmatched_custom = len(removed_custom_df)
-
+            
             print(f"Total Custom Records: {total_custom}")
             print(f"Matched Custom Records: {matched_custom}")
             print(f"Unmatched Custom Records: {unmatched_custom}")
             print(f"Completion Rate: {matched_custom / total_custom * 100:.2f}%")
-except Exception as e:
-    print(f"An error occurred: {e}")
