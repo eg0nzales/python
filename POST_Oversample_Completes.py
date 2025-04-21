@@ -85,11 +85,11 @@ def download_survey_data(survey_id, survey_type):
 
             df['date'] = pd.to_datetime(df['endtime'], errors='coerce')
             filtered_df = df.loc[(df['status'] == 3) & (df['date'] >= start_date) & (df['date'] <= end_date)].copy()
- 
+
             if filtered_df.empty:
                 print(f"No qualified data found for survey {survey_id}.")
                 return None, None, None
-         
+            
             # Process numeric columns
             for col in filtered_df.columns[4:]:
                 if pd.api.types.is_numeric_dtype(filtered_df[col]) and col not in ['QZIPCODE', 'QFIPS']:
@@ -123,19 +123,19 @@ def download_survey_data(survey_id, survey_type):
             
             # Replace 'nan' text results with a blank
             filtered_df = filtered_df.replace(r'\bnan\b', '', regex=True)
-                
-            # Ensure 'date' column is datetime before using .dt accessor
-            filtered_df['date'] = pd.to_datetime(filtered_df['date'], errors='coerce')
-            date = filtered_df['date'].dt.strftime("%B %Y").iloc[0]
-            
+
+            # Use 'endtime' instead of 'date' for the file date
+            file_date = pd.to_datetime(filtered_df['endtime'].iloc[0])  # Use the first 'endtime' value for file naming
+            filtered_df = filtered_df.drop(columns=['date'], errors='ignore')  # Explicitly drop the 'date' column
+
             # Construct the directory path
-            save_directory = construct_directory_path(base_directory, filtered_df['date'].iloc[0])
+            save_directory = construct_directory_path(base_directory, file_date)
             os.makedirs(save_directory, exist_ok=True)  # Create the directory if it doesn't exist
-            
+
             # Construct the file name
-            file_name = construct_file_name(survey_type, filtered_df['date'].iloc[0])
+            file_name = construct_file_name(survey_type, file_date)
             csv_file_name = os.path.join(save_directory, f"{file_name}.OVERSAMPLE.dat")
-            
+
             # Save the file with utf-8 encoding to ensure compatibility
             filtered_df.to_csv(csv_file_name, sep="\t", index=False, na_rep='', encoding='utf-8')
 
@@ -147,7 +147,7 @@ def download_survey_data(survey_id, survey_type):
     else:
         print(f"Error downloading data for survey {survey_id}: {response.status_code}")
         return None, None, None
-
+        
 try:
     core_df, core_csv_file, core_save_directory = download_survey_data(survey_id_1, "Core")
 
@@ -157,25 +157,30 @@ try:
         custom_df, custom_csv_file, custom_save_directory = download_survey_data(survey_id_2, "Custom")
 
         if custom_df is not None and custom_csv_file is not None:
-            # Remove the 'date' column before saving
-            custom_df = custom_df.drop(columns=['date'], errors='ignore')
-            
-            original_custom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
+            # Extract the date value before dropping the 'date' column
+            core_date = pd.to_datetime(core_df['endtime'].iloc[0])  # Use 'endtime' instead of 'date'
+            custom_date = pd.to_datetime(custom_df['endtime'].iloc[0])  # Use 'endtime' instead of 'date'
+
+            # Perform all operations requiring the 'endtime' (formerly 'date') column first
+            filtered_custom_df = custom_df[custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
+            removed_custom_df = custom_df[~custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
+
+            # Save the original custom survey data
+            original_custom_file_name = construct_file_name("Custom Removed", core_date)
             original_custom_csv_file = os.path.join(custom_save_directory, f"{original_custom_file_name}.OVERSAMPLE.dat")
             custom_df = custom_df.astype(str)
             custom_df.to_csv(original_custom_csv_file, sep="\t", index=False)
             print(f"Original Custom survey data saved to '{original_custom_csv_file}'")
 
-            filtered_custom_df = custom_df[custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
-            removed_custom_df = custom_df[~custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
-
-            filtered_custom_file_name = construct_file_name("Custom", core_df['date'].iloc[0])
+            # Save the filtered custom survey data
+            filtered_custom_file_name = construct_file_name("Custom", core_date)
             filtered_custom_csv_file = os.path.join(custom_save_directory, f"{filtered_custom_file_name}.OVERSAMPLE.dat")
             filtered_custom_df = filtered_custom_df.astype(str)
             filtered_custom_df.to_csv(filtered_custom_csv_file, sep="\t", index=False)
             print(f"Filtered Custom survey data saved to '{filtered_custom_csv_file}'")
 
-            removed_custom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
+            # Save the removed custom survey data
+            removed_custom_file_name = construct_file_name("Custom Removed", core_date)
             removed_custom_csv_file = os.path.join(custom_save_directory, f"{removed_custom_file_name}.OVERSAMPLE.dat")
             removed_custom_df = removed_custom_df.astype(str)
             removed_custom_df.to_csv(removed_custom_csv_file, sep="\t", index=False)
@@ -189,5 +194,6 @@ try:
             print(f"Matched Custom Records: {matched_custom}")
             print(f"Unmatched Custom Records: {unmatched_custom}")
             print(f"Completion Rate: {matched_custom / total_custom * 100:.2f}%")
+
 except Exception as e:
     print(f"An error occurred: {e}")
