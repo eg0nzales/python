@@ -163,6 +163,10 @@ try:
             # Remove the 'date' column from the core survey DataFrame before saving
             core_df = core_df.drop(columns=['date'], errors='ignore')
 
+            # Ensure 'date' column is dropped again before saving final files
+            custom_df = custom_df.drop(columns=['date'], errors='ignore')
+            core_df = core_df.drop(columns=['date'], errors='ignore')
+
             original_custom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
             original_custom_csv_file = os.path.join(custom_save_directory, f"{original_custom_file_name}.dat")
             custom_df = custom_df.astype(str)
