@@ -157,7 +157,9 @@ try:
         custom_df, custom_csv_file, custom_save_directory = download_survey_data(survey_id_2, "Custom")
 
         if custom_df is not None and custom_csv_file is not None:
-            # Use the correct save directory returned from the function
+            # Remove the 'date' column before saving
+            custom_df = custom_df.drop(columns=['date'], errors='ignore')
+            
             original_custom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
             original_custom_csv_file = os.path.join(custom_save_directory, f"{original_custom_file_name}.dat")
             custom_df = custom_df.astype(str)
