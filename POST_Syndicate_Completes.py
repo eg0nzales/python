@@ -134,7 +134,7 @@ def download_survey_data(survey_id, survey_type):
 
             # Construct the file name
             file_name = construct_file_name(survey_type, file_date)
-            csv_file_name = os.path.join(save_directory, f"{file_name}.dat")
+            csv_file_name = os.path.join(save_directory, f"{file_name}.OVERSAMPLE.dat")
 
             # Save the file with utf-8 encoding to ensure compatibility
             filtered_df.to_csv(csv_file_name, sep="\t", index=False, na_rep='', encoding='utf-8')
@@ -167,21 +167,21 @@ try:
 
             # Save the original custom survey data
             original_custom_file_name = construct_file_name("Custom Removed", core_date)
-            original_custom_csv_file = os.path.join(custom_save_directory, f"{original_custom_file_name}.dat")
+            original_custom_csv_file = os.path.join(custom_save_directory, f"{original_custom_file_name}.OVERSAMPLE.dat")
             custom_df = custom_df.astype(str)
             custom_df.to_csv(original_custom_csv_file, sep="\t", index=False)
             print(f"Original Custom survey data saved to '{original_custom_csv_file}'")
 
             # Save the filtered custom survey data
             filtered_custom_file_name = construct_file_name("Custom", core_date)
-            filtered_custom_csv_file = os.path.join(custom_save_directory, f"{filtered_custom_file_name}.dat")
+            filtered_custom_csv_file = os.path.join(custom_save_directory, f"{filtered_custom_file_name}.OVERSAMPLE.dat")
             filtered_custom_df = filtered_custom_df.astype(str)
             filtered_custom_df.to_csv(filtered_custom_csv_file, sep="\t", index=False)
             print(f"Filtered Custom survey data saved to '{filtered_custom_csv_file}'")
 
             # Save the removed custom survey data
             removed_custom_file_name = construct_file_name("Custom Removed", core_date)
-            removed_custom_csv_file = os.path.join(custom_save_directory, f"{removed_custom_file_name}.dat")
+            removed_custom_csv_file = os.path.join(custom_save_directory, f"{removed_custom_file_name}.OVERSAMPLE.dat")
             removed_custom_df = removed_custom_df.astype(str)
             removed_custom_df.to_csv(removed_custom_csv_file, sep="\t", index=False)
             print(f"Removed Custom survey data saved to '{removed_custom_csv_file}'")
