@@ -157,31 +157,31 @@ try:
         custom_df, custom_csv_file, custom_save_directory = download_survey_data(survey_id_2, "Custom")
 
         if custom_df is not None and custom_csv_file is not None:
-            # Remove the 'date' column from the custom survey DataFrame before saving
-            custom_df = custom_df.drop(columns=['date'], errors='ignore')
+            # Perform all operations requiring the 'date' column first
+            filtered_custom_df = custom_df[custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
+            removed_custom_df = custom_df[~custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
 
-            # Remove the 'date' column from the core survey DataFrame before saving
-            core_df = core_df.drop(columns=['date'], errors='ignore')
-
-            # Ensure 'date' column is dropped again before saving final files
+            # Drop the 'date' column from both DataFrames before saving
             custom_df = custom_df.drop(columns=['date'], errors='ignore')
             core_df = core_df.drop(columns=['date'], errors='ignore')
+            filtered_custom_df = filtered_custom_df.drop(columns=['date'], errors='ignore')
+            removed_custom_df = removed_custom_df.drop(columns=['date'], errors='ignore')
 
+            # Save the original custom survey data
             original_custom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
             original_custom_csv_file = os.path.join(custom_save_directory, f"{original_custom_file_name}.dat")
             custom_df = custom_df.astype(str)
             custom_df.to_csv(original_custom_csv_file, sep="\t", index=False)
             print(f"Original Custom survey data saved to '{original_custom_csv_file}'")
 
-            filtered_custom_df = custom_df[custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
-            removed_custom_df = custom_df[~custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
-
+            # Save the filtered custom survey data
             filtered_custom_file_name = construct_file_name("Custom", core_df['date'].iloc[0])
             filtered_custom_csv_file = os.path.join(custom_save_directory, f"{filtered_custom_file_name}.dat")
             filtered_custom_df = filtered_custom_df.astype(str)
             filtered_custom_df.to_csv(filtered_custom_csv_file, sep="\t", index=False)
             print(f"Filtered Custom survey data saved to '{filtered_custom_csv_file}'")
 
+            # Save the removed custom survey data
             removed_custom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
             removed_custom_csv_file = os.path.join(custom_save_directory, f"{removed_custom_file_name}.dat")
             removed_custom_df = removed_custom_df.astype(str)
