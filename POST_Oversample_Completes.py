@@ -134,7 +134,7 @@ def download_survey_data(survey_id, survey_type):
             
             # Construct the file name
             file_name = construct_file_name(survey_type, filtered_df['date'].iloc[0])
-            csv_file_name = os.path.join(save_directory, f"{file_name}.dat")
+            csv_file_name = os.path.join(save_directory, f"{file_name}.OVERSAMPLE.dat")
             
             # Save the file with utf-8 encoding to ensure compatibility
             filtered_df.to_csv(csv_file_name, sep="\t", index=False, na_rep='', encoding='utf-8')
