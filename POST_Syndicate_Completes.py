@@ -126,16 +126,16 @@ def download_survey_data(survey_id, survey_type):
 
             # Use 'endtime' instead of 'date' for the file date
             file_date = pd.to_datetime(filtered_df['endtime'].iloc[0])  # Use the first 'endtime' value for file naming
-            filtered_df = filtered_df.drop(columns=['date'], errors='ignore')
-            
+            filtered_df = filtered_df.drop(columns=['date'], errors='ignore')  # Explicitly drop the 'date' column
+
             # Construct the directory path
             save_directory = construct_directory_path(base_directory, file_date)
             os.makedirs(save_directory, exist_ok=True)  # Create the directory if it doesn't exist
-            
+
             # Construct the file name
             file_name = construct_file_name(survey_type, file_date)
             csv_file_name = os.path.join(save_directory, f"{file_name}.dat")
-            
+
             # Save the file with utf-8 encoding to ensure compatibility
             filtered_df.to_csv(csv_file_name, sep="\t", index=False, na_rep='', encoding='utf-8')
 
