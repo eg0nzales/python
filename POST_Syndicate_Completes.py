@@ -124,19 +124,17 @@ def download_survey_data(survey_id, survey_type):
             # Replace 'nan' text results with a blank
             filtered_df = filtered_df.replace(r'\bnan\b', '', regex=True)
 
-            # Drop the 'date' column as it's no longer needed
-            filtered_df = filtered_df.drop(columns=['date'], errors='ignore')
-
-            # Ensure 'date' column is datetime before using .dt accessor
+            # Store date string first before dropping the column
             filtered_df['date'] = pd.to_datetime(filtered_df['date'], errors='coerce')
-            date = filtered_df['date'].dt.strftime("%B %Y").iloc[0]
+            file_date = filtered_df['date'].iloc[0]  # Save this for file naming & path
+            filtered_df = filtered_df.drop(columns=['date'], errors='ignore')
             
             # Construct the directory path
-            save_directory = construct_directory_path(base_directory, filtered_df['date'].iloc[0])
+            save_directory = construct_directory_path(base_directory, file_date)
             os.makedirs(save_directory, exist_ok=True)  # Create the directory if it doesn't exist
             
             # Construct the file name
-            file_name = construct_file_name(survey_type, filtered_df['date'].iloc[0])
+            file_name = construct_file_name(survey_type, file_date)
             csv_file_name = os.path.join(save_directory, f"{file_name}.dat")
             
             # Save the file with utf-8 encoding to ensure compatibility
