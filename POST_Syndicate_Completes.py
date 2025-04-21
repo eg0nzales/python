@@ -125,8 +125,12 @@ def download_survey_data(survey_id, survey_type):
             filtered_df = filtered_df.replace(r'\bnan\b', '', regex=True)
 
             # Store date string first before dropping the column
-            filtered_df['date'] = pd.to_datetime(filtered_df['date'], errors='coerce')
-            file_date = filtered_df['date'].iloc[0]  # Save this for file naming & path
+            try:
+                filtered_df['date'] = pd.to_datetime(filtered_df['date'], errors='coerce')
+                file_date = filtered_df['date'].iloc[0]  # Save this for file naming & path
+            except Exception as e:
+                print(f"Could not extract date for file naming: {e}")
+                file_date = pd.Timestamp.today()  # Fallback to today's date
             filtered_df = filtered_df.drop(columns=['date'], errors='ignore')
             
             # Construct the directory path
@@ -165,23 +169,6 @@ try:
             # Perform all operations requiring the 'date' column first
             filtered_custom_df = custom_df[custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
             removed_custom_df = custom_df[~custom_df.iloc[:, 0].astype(str).isin(core_record_ids)]
-
-            # Debug: Check if 'date' column exists
-            print("Before dropping 'date':")
-            print("custom_df columns:", custom_df.columns)
-            print("core_df columns:", core_df.columns)
-            print("filtered_custom_df columns:", filtered_custom_df.columns)
-            print("removed_custom_df columns:", removed_custom_df.columns)
-
-            # Explicitly drop the 'date' column from all DataFrames before saving
-            if 'date' in custom_df.columns:
-                custom_df = custom_df.drop(columns=['date'], errors='ignore')
-            if 'date' in core_df.columns:
-                core_df = core_df.drop(columns=['date'], errors='ignore')
-            if 'date' in filtered_custom_df.columns:
-                filtered_custom_df = filtered_custom_df.drop(columns=['date'], errors='ignore')
-            if 'date' in removed_custom_df.columns:
-                removed_custom_df = removed_custom_df.drop(columns=['date'], errors='ignore')
 
             # Save the original custom survey data
             original_custom_file_name = construct_file_name("Custom Removed", core_date)
