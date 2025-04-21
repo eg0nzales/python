@@ -160,10 +160,10 @@ try:
             # Remove the 'date' column from the custom survey DataFrame before saving
             custom_df = custom_df.drop(columns=['date'], errors='ignore')
 
-        #Remove the 'date' column from the core survey DataFrame before saving
+            # Remove the 'date' column from the core survey DataFrame before saving
             core_df = core_df.drop(columns=['date'], errors='ignore')
 
-          originalustom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
+            original_custom_file_name = construct_file_name("Custom Removed", core_df['date'].iloc[0])
             original_custom_csv_file = os.path.join(custom_save_directory, f"{original_custom_file_name}.dat")
             custom_df = custom_df.astype(str)
             custom_df.to_csv(original_custom_csv_file, sep="\t", index=False)
