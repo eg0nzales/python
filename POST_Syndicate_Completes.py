@@ -85,11 +85,11 @@ def download_survey_data(survey_id, survey_type):
 
             df['date'] = pd.to_datetime(df['endtime'], errors='coerce')
             filtered_df = df.loc[(df['status'] == 3) & (df['date'] >= start_date) & (df['date'] <= end_date)].copy()
- 
+
             if filtered_df.empty:
                 print(f"No qualified data found for survey {survey_id}.")
                 return None, None, None
-         
+            
             # Process numeric columns
             for col in filtered_df.columns[4:]:
                 if pd.api.types.is_numeric_dtype(filtered_df[col]) and col not in ['QZIPCODE', 'QFIPS']:
@@ -124,13 +124,8 @@ def download_survey_data(survey_id, survey_type):
             # Replace 'nan' text results with a blank
             filtered_df = filtered_df.replace(r'\bnan\b', '', regex=True)
 
-            # Store date string first before dropping the column
-            try:
-                filtered_df['date'] = pd.to_datetime(filtered_df['date'], errors='coerce')
-                file_date = filtered_df['date'].iloc[0]  # Save this for file naming & path
-            except Exception as e:
-                print(f"Could not extract date for file naming: {e}")
-                file_date = pd.Timestamp.today()  # Fallback to today's date
+            # Use 'endtime' instead of 'date' for the file date
+            file_date = pd.to_datetime(filtered_df['endtime'].iloc[0])  # Use the first 'endtime' value for file naming
             filtered_df = filtered_df.drop(columns=['date'], errors='ignore')
             
             # Construct the directory path
@@ -152,7 +147,7 @@ def download_survey_data(survey_id, survey_type):
     else:
         print(f"Error downloading data for survey {survey_id}: {response.status_code}")
         return None, None, None
-
+        
 try:
     core_df, core_csv_file, core_save_directory = download_survey_data(survey_id_1, "Core")
 
