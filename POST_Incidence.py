@@ -1,3 +1,22 @@
+import json
+from datetime import datetime, date 
+import os
+
+with open("Completes_ids.json", "r") as f:
+    config = json.load(f)
+
+survey_id_1 = config["survey_id_1"]
+survey_id_2 = config["survey_id_2"]
+
+print("Core Survey ID:", survey_id_1)
+print("Custom Survey ID:", survey_id_2)
+
+with open('Completes_dates.json', 'r') as f:
+    time_data = json.load(f)
+
+start_date = datetime(*time_data['start_date'])  # Unpacks the list into datetime
+end_date = datetime(*time_data['end_date'])
+
 import requests
 import pandas as pd
 from datetime import datetime
@@ -9,8 +28,6 @@ from time import sleep
 # Set up your API key, server domain, and survey IDs
 api_key = "uqdpv1ehf12fc3bangxb9kh4m7y0wbp5ffrp87qxt5kssvsxcfncfqm3d4z6dvnm"
 server_domain = "https://nrc.decipherinc.com/api/v1/"
-survey_id_1 = "selfserve/53b/250302"  # Syndicate survey
-survey_id_2 = "selfserve/53b/250304"  # Oversample survey
 
 # Define the vendor mapping with numerical IDs
 vendor_mapping = {
