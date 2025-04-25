@@ -1,5 +1,4 @@
 import json
-from datetime import datetime, date 
 import os
 
 with open("Completes_ids.json", "r") as f:
@@ -10,9 +9,6 @@ survey_id_2 = config["survey_id_2"]
 
 print("Core Survey ID:", survey_id_1)
 print("Custom Survey ID:", survey_id_2)
-
-with open('Completes_dates.json', 'r') as f:
-    time_data = json.load(f)
 
 start_date = datetime(*time_data['start_date'])  # Unpacks the list into datetime
 end_date = datetime(*time_data['end_date'])
