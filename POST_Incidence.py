@@ -18,7 +18,6 @@ import pandas as pd
 from datetime import datetime
 from tqdm import tqdm
 import io
-import os
 from time import sleep
 
 # Set up your API key, server domain, and survey IDs
