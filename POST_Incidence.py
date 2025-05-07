@@ -4,11 +4,16 @@ import os
 with open("Completes_ids.json", "r") as f:
     config = json.load(f)
 
+with open("Directory_Incidence.json", "r") as f:
+    directory_incidence = json.load(f)
+
 survey_id_1 = config["survey_id_1"]
 survey_id_2 = config["survey_id_2"]
+base_folder_path = directory_incidence["base_directory"]
 
 print("Core Survey ID:", survey_id_1)
 print("Custom Survey ID:", survey_id_2)
+print("Base Directory:", base_folder_path)
 
 start_date = datetime(*time_data['start_date'])  # Unpacks the list into datetime
 end_date = datetime(*time_data['end_date'])
@@ -34,7 +39,6 @@ vendor_mapping = {
 }
 
 # Define folder paths
-base_folder_path = r"T:\MarketInsights\HCMG2008\Kinesis\Incidence Reports"
 vendors_folders = {
     "Cint": "Cint",
     "Prodege": "Prodege and MyPoints",
