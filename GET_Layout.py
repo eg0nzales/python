@@ -8,7 +8,7 @@ try:
         config = json.load(f)
 
     # Update the path to the JSON file
-    with open("settings/Directory_Data.json", "r") as f:
+    with open("Directory_Data.json", "r") as f:
         raw_data = f.read()
         print(f"Raw JSON data from Directory_Data.json:\n{raw_data}")
         directory_data = json.loads(raw_data)  # Parse the JSON data
