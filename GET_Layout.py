@@ -56,6 +56,12 @@ def download_survey_layout(survey_id, layout_id, survey_type):
             # Convert variables to a DataFrame
             df = pd.DataFrame(variables)
 
+            # Filter rows where 'shown' is True
+            df = df[df['shown'] == True]
+
+            # Keep only the 'label', 'altlabel', and 'fwidth' columns
+            df = df[['label', 'altlabel', 'fwidth']]
+
             # Generate file name and directory
             current_date = datetime.now().strftime("%m%d%y")
             year_month = datetime.now().strftime("%Y_%m")
