@@ -55,11 +55,22 @@ def download_survey_layout(survey_id, layout_id, survey_type):
             # Filter rows where 'shown' is True
             df = df[df['shown'] == True]
 
-            # Generate the final column I
-            df['I'] = df.apply(
-                lambda row: "" if pd.isna(row['label']) else f"{row['label']},{row['altlabel'].replace('r', '_', 1) if 'r' in str(row['altlabel']).lower() else row['altlabel']},{row['fwidth']}",
-                axis=1
-            )
+            # Generate the final column I with corrected replacement logic
+            def generate_column_i(row):
+                if pd.isna(row['label']):
+                    return ""
+                altlabel = str(row['altlabel'])
+                if "r" in altlabel.lower():
+                    if row['label'] == "Response":
+                        # Replace "r" with "_" only if "oe" is not present
+                        if "oe" not in altlabel.lower():
+                            altlabel = altlabel.replace("r", "_", 1)
+                    elif row['label'] == "OPS" and "oe" in altlabel.lower():
+                        # Replace "r" with "o" and remove "oe"
+                        altlabel = altlabel.replace("r", "o", 1).replace("oe", "", 1)
+                return f"{row['label']},{altlabel},{row['fwidth']}"
+
+            df['I'] = df.apply(generate_column_i, axis=1)
 
             # Keep only column I
             df = df[['I']]
