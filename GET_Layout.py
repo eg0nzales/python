@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+import pandas as pd
 from datetime import datetime
 
 try:
@@ -36,7 +37,7 @@ print("Base Directory:", base_directory)
 api_key = "uqdpv1ehf12fc3bangxb9kh4m7y0wbp5ffrp87qxt5kssvsxcfncfqm3d4z6dvnm"
 server_domain = "nrc.decipherinc.com"  # Corrected to only include the domain name
 
-# Function to download survey layout and save as JSON
+# Function to download survey layout and save as CSV
 def download_survey_layout(survey_id, layout_id, survey_type):
     # Corrected URL construction
     url = f"https://{server_domain}/api/v1/surveys/{survey_id}/layouts/{layout_id}"
@@ -46,6 +47,15 @@ def download_survey_layout(survey_id, layout_id, survey_type):
     if response.status_code == 200:
         layout_data = response.json()
         try:
+            # Extract variables from layout data
+            variables = layout_data.get("variables", [])
+            if not variables:
+                print(f"No variables found in layout for survey {survey_id}.")
+                return None
+
+            # Convert variables to a DataFrame
+            df = pd.DataFrame(variables)
+
             # Generate file name and directory
             current_date = datetime.now().strftime("%m%d%y")
             year_month = datetime.now().strftime("%Y_%m")
@@ -54,12 +64,11 @@ def download_survey_layout(survey_id, layout_id, survey_type):
                 print(f"Layouts directory does not exist. Creating: {layout_directory}")
                 os.makedirs(layout_directory)
 
-            file_name = f"Layout.{year_month}.{survey_type}.TEST{current_date}.json"
+            file_name = f"Layout.{year_month}.{survey_type}.TEST{current_date}.csv"
             file_path = os.path.join(layout_directory, file_name)
 
-            # Save layout data to JSON file
-            with open(file_path, "w") as f:
-                json.dump(layout_data, f, indent=4)
+            # Save layout data to CSV file
+            df.to_csv(file_path, index=False)
 
             print(f"Layout data downloaded successfully and saved to '{file_path}'")
             return file_path
