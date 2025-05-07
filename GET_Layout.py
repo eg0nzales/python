@@ -110,6 +110,9 @@ def download_survey_layout(survey_id, layout_id, survey_type):
                 axis=1
             )
 
+            # Keep only column I
+            df = df[['I']]
+
             # Generate file name and directory
             current_date = datetime.now().strftime("%m%d%y")
             year_month = datetime.now().strftime("%Y_%m")
@@ -121,8 +124,8 @@ def download_survey_layout(survey_id, layout_id, survey_type):
             file_name = f"Layout.{year_month}.{survey_type}.TEST{current_date}.csv"
             file_path = os.path.join(layout_directory, file_name)
 
-            # Save layout data to CSV file
-            df.to_csv(file_path, index=False)
+            # Save only column I to CSV file
+            df.to_csv(file_path, index=False, header=False)
 
             print(f"Layout data downloaded successfully and saved to '{file_path}'")
             return file_path
