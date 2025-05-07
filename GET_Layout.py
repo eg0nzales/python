@@ -7,8 +7,12 @@ try:
     with open("Completes_ids.json", "r") as f:
         config = json.load(f)
 
-    # Update the path to the JSON file
-    with open("Directory_Data.json", "r") as f:
+    # Check if the JSON file exists
+    directory_data_path = "Directory_Data.json"
+    if not os.path.exists(directory_data_path):
+        raise FileNotFoundError(f"Required file not found: {directory_data_path}")
+
+    with open(directory_data_path, "r") as f:
         raw_data = f.read()
         print(f"Raw JSON data from Directory_Data.json:\n{raw_data}")
         directory_data = json.loads(raw_data)  # Parse the JSON data
@@ -30,11 +34,11 @@ print("Base Directory:", base_directory)
 
 # Set up your API key, server domain, and survey IDs
 api_key = "uqdpv1ehf12fc3bangxb9kh4m7y0wbp5ffrp87qxt5kssvsxcfncfqm3d4z6dvnm"
-server_domain = "https://nrc.decipherinc.com/api/v1/"  # Replace with your instance domain
+server_domain = "nrc.decipherinc.com"  # Corrected to only include the domain name
 
 # Function to download survey layout and save as JSON
 def download_survey_layout(survey_id, layout_id, survey_type):
-    url = f"https://{server_domain}/api/v1/surveys/{survey_id}/layouts/{layout_id}"
+    url = f"https://{server_domain}/api/v1/surveys/{survey_id}/layouts/{layout_id}"  # Corrected URL construction
     headers = {"x-apikey": api_key}
 
     response = requests.get(url, headers=headers)
