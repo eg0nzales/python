@@ -7,18 +7,17 @@ with open("Completes_ids.json", "r") as f:
 
 survey_id_1 = config["survey_id_1"]
 survey_id_2 = config["survey_id_2"]
+base_directory = directory_data["base_directory"]
 
 print("Core Survey ID:", survey_id_1)
 print("Custom Survey ID:", survey_id_2)
+print("Base Directory:", base_directory)
 
 with open('Completes_dates.json', 'r') as f:
     time_data = json.load(f)
 
 start_date = datetime(*time_data['start_date'])  # Unpacks the list into datetime
 end_date = datetime(*time_data['end_date'])
-
-# Base directory for saving files
-base_directory = r"T:\MarketInsights\HCMG2008\Kinesis\Data (Investigate further)"
 
 # Function to construct the directory path based on the date
 def construct_directory_path(base_dir, date):
