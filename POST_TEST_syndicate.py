@@ -1,6 +1,6 @@
 import json
 
-with open("survey_ids.json", "r") as f:
+with open("Completes_ids.json", "r") as f:
     config = json.load(f)
 
 survey_id_1 = config["survey_id_1"]
