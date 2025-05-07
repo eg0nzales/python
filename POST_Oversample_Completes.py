@@ -5,6 +5,9 @@ import os
 with open("Completes_ids.json", "r") as f:
     config = json.load(f)
 
+with open("Directory_Data.json", "r") as f:
+    directory_data = json.load(f)
+
 survey_id_1 = config["survey_id_1"]
 survey_id_2 = config["survey_id_2"]
 base_directory = directory_data["base_directory"]
