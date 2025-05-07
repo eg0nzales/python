@@ -61,13 +61,12 @@ def download_survey_layout(survey_id, layout_id, survey_type):
                     return ""
                 altlabel = str(row['altlabel'])
                 if "r" in altlabel.lower():
-                    if row['label'] == "Response":
-                        # Replace "r" with "_" only if "oe" is not present
-                        if "oe" not in altlabel.lower():
-                            altlabel = altlabel.replace("r", "_", 1)
-                    elif row['label'] == "OPS" and "oe" in altlabel.lower():
+                    if "oe" in altlabel.lower():
                         # Replace "r" with "o" and remove "oe"
                         altlabel = altlabel.replace("r", "o", 1).replace("oe", "", 1)
+                    else:
+                        # Replace "r" with "_"
+                        altlabel = altlabel.replace("r", "_", 1)
                 return f"{row['label']},{altlabel},{row['fwidth']}"
 
             df['I'] = df.apply(generate_column_i, axis=1)
