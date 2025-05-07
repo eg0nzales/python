@@ -3,11 +3,16 @@ import json
 with open("Completes_ids.json", "r") as f:
     config = json.load(f)
 
+with open("Directory_Data.json", "r") as f:
+    directory_data = json.load(f)
+
 survey_id_1 = config["survey_id_1"]
 survey_id_2 = config["survey_id_2"]
+base_directory = directory_data["base_directory"]
 
 print("Core Survey ID:", survey_id_1)
 print("Custom Survey ID:", survey_id_2)
+print("Base Directory:", base_directory)
 
 import requests
 import pandas as pd
@@ -96,7 +101,6 @@ def download_survey_data(survey_id, survey_type):
             # Create directory path based on date
             year = filtered_df['date'].dt.year.iloc[0]
             month_year = filtered_df['date'].dt.strftime("%m.%Y").iloc[0]
-            base_directory = f"T:/MarketInsights/HCMG2008/Kinesis/Data (Investigate further)/{year}/{month_year}"
             if not os.path.exists(base_directory):
                 os.makedirs(base_directory)
             
