@@ -38,7 +38,8 @@ server_domain = "nrc.decipherinc.com"  # Corrected to only include the domain na
 
 # Function to download survey layout and save as JSON
 def download_survey_layout(survey_id, layout_id, survey_type):
-    url = f"https://{server_domain}/api/v1/surveys/{survey_id}/layouts/{layout_id}"  # Corrected URL construction
+    # Corrected URL construction
+    url = f"https://{server_domain}/api/v1/surveys/{survey_id}/layouts/{layout_id}"
     headers = {"x-apikey": api_key}
 
     response = requests.get(url, headers=headers)
