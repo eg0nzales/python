@@ -19,9 +19,6 @@ with open('Completes_dates.json', 'r') as f:
 start_date = datetime(*time_data['start_date'])  # Unpacks the list into datetime
 end_date = datetime(*time_data['end_date'])
 
-# Base directory for saving files
-base_directory = r"T:\MarketInsights\HCMG2008\Kinesis\Data (Investigate further)"
-
 # Function to construct the directory path based on the date
 def construct_directory_path(base_dir, date):
     year = date.strftime("%Y")
