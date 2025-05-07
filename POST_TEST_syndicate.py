@@ -1,10 +1,19 @@
 import json
 
-with open("Completes_ids.json", "r") as f:
-    config = json.load(f)
+try:
+    with open("Completes_ids.json", "r") as f:
+        config = json.load(f)
 
-with open("Directory_Data.json", "r") as f:
-    directory_data = json.load(f)
+    with open("Directory_Data.json", "r") as f:
+        directory_data = json.load(f)
+        print(f"Loaded base directory: {directory_data['base_directory']}")
+except json.JSONDecodeError as e:
+    print(f"Error reading JSON file: {e}")
+    exit(1)
+except FileNotFoundError as e:
+    print(f"Error: {e}")
+    exit(1)
+
 
 survey_id_1 = config["survey_id_1"]
 survey_id_2 = config["survey_id_2"]
@@ -102,11 +111,13 @@ def download_survey_data(survey_id, survey_type):
             year = filtered_df['date'].dt.year.iloc[0]
             month_year = filtered_df['date'].dt.strftime("%m.%Y").iloc[0]
             if not os.path.exists(base_directory):
+                print(f"Base directory does not exist. Creating: {base_directory}")
                 os.makedirs(base_directory)
             
             # Check if TEST folder exists, if not, create it
             test_directory = os.path.join(base_directory, "TEST")
             if not os.path.exists(test_directory):
+                print(f"TEST directory does not exist. Creating: {test_directory}")
                 os.makedirs(test_directory)
             
             # Remove the 'date' column
