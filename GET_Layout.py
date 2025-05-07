@@ -18,10 +18,7 @@ try:
         print(f"Raw JSON data from Directory_Data.json:\n{raw_data}")
         directory_data = json.loads(raw_data)  # Parse the JSON data
         print(f"Loaded base directory: {directory_data['base_directory']}")
-except json.JSONDecodeError as e:
-    print(f"Error reading JSON file: {e}")
-    exit(1)
-except FileNotFoundError as e:
+except (json.JSONDecodeError, FileNotFoundError) as e:
     print(f"Error: {e}")
     exit(1)
 
@@ -37,9 +34,8 @@ print("Base Directory:", base_directory)
 api_key = "uqdpv1ehf12fc3bangxb9kh4m7y0wbp5ffrp87qxt5kssvsxcfncfqm3d4z6dvnm"
 server_domain = "nrc.decipherinc.com"  # Corrected to only include the domain name
 
-# Function to download survey layout and save as CSV
+# Function to download survey layout and save only column I as CSV
 def download_survey_layout(survey_id, layout_id, survey_type):
-    # Corrected URL construction
     url = f"https://{server_domain}/api/v1/surveys/{survey_id}/layouts/{layout_id}"
     headers = {"x-apikey": api_key}
 
@@ -59,22 +55,26 @@ def download_survey_layout(survey_id, layout_id, survey_type):
             # Filter rows where 'shown' is True
             df = df[df['shown'] == True]
 
-            # Keep only the 'label', 'altlabel', and 'fwidth' columns
-            df = df[['label', 'altlabel', 'fwidth']]
+            # Generate the final column I
+            df['I'] = df.apply(
+                lambda row: "" if pd.isna(row['label']) else f"{row['label']},{row['altlabel'].replace('r', '_', 1) if 'r' in str(row['altlabel']).lower() else row['altlabel']},{row['fwidth']}",
+                axis=1
+            )
+
+            # Keep only column I
+            df = df[['I']]
 
             # Generate file name and directory
             current_date = datetime.now().strftime("%m%d%y")
             year_month = datetime.now().strftime("%Y_%m")
             layout_directory = os.path.join(base_directory, "Layouts")
-            if not os.path.exists(layout_directory):
-                print(f"Layouts directory does not exist. Creating: {layout_directory}")
-                os.makedirs(layout_directory)
+            os.makedirs(layout_directory, exist_ok=True)
 
             file_name = f"Layout.{year_month}.{survey_type}.TEST{current_date}.csv"
             file_path = os.path.join(layout_directory, file_name)
 
             # Save layout data to CSV file
-            df.to_csv(file_path, index=False)
+            df.to_csv(file_path, index=False, header=False)
 
             print(f"Layout data downloaded successfully and saved to '{file_path}'")
             return file_path
