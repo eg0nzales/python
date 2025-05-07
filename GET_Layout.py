@@ -18,7 +18,10 @@ try:
         print(f"Raw JSON data from Directory_Data.json:\n{raw_data}")
         directory_data = json.loads(raw_data)  # Parse the JSON data
         print(f"Loaded base directory: {directory_data['base_directory']}")
-except (json.JSONDecodeError, FileNotFoundError) as e:
+except json.JSONDecodeError as e:
+    print(f"Error reading JSON file: {e}")
+    exit(1)
+except FileNotFoundError as e:
     print(f"Error: {e}")
     exit(1)
 
@@ -34,8 +37,9 @@ print("Base Directory:", base_directory)
 api_key = "uqdpv1ehf12fc3bangxb9kh4m7y0wbp5ffrp87qxt5kssvsxcfncfqm3d4z6dvnm"
 server_domain = "nrc.decipherinc.com"  # Corrected to only include the domain name
 
-# Function to download survey layout and save only column I as CSV
+# Function to download survey layout and save as CSV
 def download_survey_layout(survey_id, layout_id, survey_type):
+    # Corrected URL construction
     url = f"https://{server_domain}/api/v1/surveys/{survey_id}/layouts/{layout_id}"
     headers = {"x-apikey": api_key}
 
@@ -55,36 +59,70 @@ def download_survey_layout(survey_id, layout_id, survey_type):
             # Filter rows where 'shown' is True
             df = df[df['shown'] == True]
 
-            # Generate the final column I with corrected replacement logic
-            def generate_column_i(row):
+            # Keep only the 'label', 'altlabel', and 'fwidth' columns
+            df = df[['label', 'altlabel', 'fwidth']]
+
+            # Add a new column (D) with the specified formula logic
+            df['D'] = df.apply(
+                lambda row: "" if pd.isna(row['label']) else (
+                    "Yes" if (
+                        "r" in str(row['altlabel']).lower() and
+                        ("QP0" in str(row['altlabel']) or "Q0" in str(row['altlabel']))
+                    ) else "No"
+                ),
+                axis=1
+            )
+
+            # Add a new column (E) with the specified formula logic
+            df['E'] = df.apply(
+                lambda row: "" if pd.isna(row['label']) else (
+                    "" if row['D'] == "No" else (
+                        "OPS" if "oe" in str(row['altlabel']).lower() else "Response"
+                    )
+                ),
+                axis=1
+            )
+
+            # Add a new column (F) with the specified formula logic
+            df['F'] = df['label'].apply(lambda x: "" if pd.isna(x) else x)
+
+            # Add a new column (G) with the specified formula logic
+            def calculate_column_g(row):
                 if pd.isna(row['label']):
                     return ""
-                altlabel = str(row['altlabel'])
-                if "r" in altlabel.lower():
-                    if "oe" in altlabel.lower():
-                        # Replace "r" with "o" and remove "oe"
-                        altlabel = altlabel.replace("r", "o", 1).replace("oe", "", 1)
-                    else:
-                        # Replace "r" with "_"
-                        altlabel = altlabel.replace("r", "_", 1)
-                return f"{row['label']},{altlabel},{row['fwidth']}"
+                if row['E'] == "Response":
+                    if "r" in str(row['altlabel']).lower():
+                        return str(row['altlabel']).replace("r", "_", 1)
+                elif row['E'] == "OPS":
+                    if "r" in str(row['altlabel']).lower() and "oe" in str(row['altlabel']).lower():
+                        temp = str(row['altlabel']).replace("r", "o", 1)
+                        return temp.replace("oe", "", 1)
+                return row['altlabel']
 
-            df['I'] = df.apply(generate_column_i, axis=1)
+            df['G'] = df.apply(calculate_column_g, axis=1)
 
-            # Keep only column I
-            df = df[['I']]
+            # Add a new column (H) with the specified formula logic
+            df['H'] = df['fwidth'].apply(lambda x: "" if pd.isna(x) else x)
+
+            # Add a new column (I) with the specified formula logic
+            df['I'] = df.apply(
+                lambda row: "" if pd.isna(row['label']) else f"{row['F']},{row['G']},{row['H']}",
+                axis=1
+            )
 
             # Generate file name and directory
             current_date = datetime.now().strftime("%m%d%y")
             year_month = datetime.now().strftime("%Y_%m")
             layout_directory = os.path.join(base_directory, "Layouts")
-            os.makedirs(layout_directory, exist_ok=True)
+            if not os.path.exists(layout_directory):
+                print(f"Layouts directory does not exist. Creating: {layout_directory}")
+                os.makedirs(layout_directory)
 
             file_name = f"Layout.{year_month}.{survey_type}.TEST{current_date}.csv"
             file_path = os.path.join(layout_directory, file_name)
 
             # Save layout data to CSV file
-            df.to_csv(file_path, index=False, header=False)
+            df.to_csv(file_path, index=False)
 
             print(f"Layout data downloaded successfully and saved to '{file_path}'")
             return file_path
