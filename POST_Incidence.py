@@ -1,5 +1,7 @@
 import json
 import os
+import pandas as pd
+from datetime import datetime
 
 with open("Completes_ids.json", "r") as f:
     config = json.load(f)
@@ -19,8 +21,6 @@ start_date = datetime(*time_data['start_date'])  # Unpacks the list into datetim
 end_date = datetime(*time_data['end_date'])
 
 import requests
-import pandas as pd
-from datetime import datetime
 from tqdm import tqdm
 import io
 from time import sleep
