@@ -160,3 +160,18 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+sample_save_dir = save_dir if save_dir else base_directory  # fallback to base_directory if no save_dir
+
+# Prepare JSON content with the Combined folder path
+all_directory_json_path = os.path.join(all_completes_dir, "ALL_DIRECTORY.json")
+all_directory_content = {
+    "base_directory": sample_save_dir.replace("/", "\\")  # Windows style slashes
+}
+
+# Write the JSON file
+with open(all_directory_json_path, "w") as jf:
+    json.dump(all_directory_content, jf, indent=2)
+
+print(f"ALL_DIRECTORY.json saved at {all_directory_json_path} with:")
+print(all_directory_content)
