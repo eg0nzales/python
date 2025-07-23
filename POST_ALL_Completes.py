@@ -164,6 +164,10 @@ if __name__ == "__main__":
 sample_save_dir = save_dir if save_dir else base_directory  # fallback to base_directory if no save_dir
 
 # Prepare JSON content with the Combined folder path
+if os.path.exists(all_directory_json_path):
+    os.remove(all_directory_json_path)
+    print(f"🗑️ Deleted existing {all_directory_json_path}")
+    
 all_directory_json_path = os.path.join(all_completes_dir, "ALL_DIRECTORY.json")
 all_directory_content = {
     "base_directory": sample_save_dir.replace("/", "\\")  # Windows style slashes
