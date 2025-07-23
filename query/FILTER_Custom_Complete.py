@@ -35,7 +35,7 @@ for question_id in pq_ids:
             print(f"⚠️ File not found: {file_path}")
     if dfs:
         combined_df = pd.concat(dfs, ignore_index=True)
-        output_filename = f"{question_id}.xls"
+        output_filename = f"{question_id}.xlsx"
         output_path = os.path.join(base_dir, output_filename)
         combined_df.to_excel(output_path, index=False)
         print(f"✅ Excel file saved: {output_path}")
