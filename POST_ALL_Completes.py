@@ -149,7 +149,21 @@ def main():
 
         if os.path.exists(all_core_path) and os.path.exists(all_custom_path):
             print("✅ Skipping download: ALL_CORE.dat and ALL_CUSTOM.dat already exist.")
+            
+            # Still regenerate ALL_DIRECTORY.json
+            all_completes_ids_path = os.path.abspath("All_Completes_ids.json")
+            all_completes_dir = os.path.dirname(all_completes_ids_path)
+            all_directory_json_path = os.path.join(all_completes_dir, "ALL_DIRECTORY.json")
+            all_directory_content = {
+                "base_directory": save_dir.replace("/", "\\")
+            }
+            with open(all_directory_json_path, "w") as jf:
+                json.dump(all_directory_content, jf, indent=2)
+            print(f"ALL_DIRECTORY.json saved at {all_directory_json_path} with:")
+            print(all_directory_content)
+            
             return
+
     else:
         print("❌ Could not determine file_date from Core dataset. Exiting.")
         return
