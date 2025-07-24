@@ -137,45 +137,53 @@ def main():
     ]
 
     saved_files = {}
+    save_dir = None
 
+    # Download Core to determine file_date/save_dir
+    df_probe, _, _ = download_survey_data(downloads[0][0], downloads[0][1])
+    if df_probe is not None:
+        file_date = pd.to_datetime(df_probe['endtime'].iloc[0])
+        save_dir = construct_directory_path(base_directory, file_date)
+        all_core_path = os.path.join(save_dir, "ALL_CORE.dat")
+        all_custom_path = os.path.join(save_dir, "ALL_CUSTOM.dat")
+
+        if os.path.exists(all_core_path) and os.path.exists(all_custom_path):
+            print("✅ Skipping download: ALL_CORE.dat and ALL_CUSTOM.dat already exist.")
+            return
+    else:
+        print("❌ Could not determine file_date from Core dataset. Exiting.")
+        return
+
+    # Redownload everything now that save_dir is known
     for survey_id, survey_type in downloads:
         df, path, _ = download_survey_data(survey_id, survey_type)
         saved_files[survey_type] = path
 
-    # After download, append Core files
     core_files = [saved_files.get("Core"), saved_files.get("Core.Oversample")]
     custom_files = [saved_files.get("Custom"), saved_files.get("Custom.Oversample")]
 
     if all(core_files):
-        all_core_path = os.path.join(os.path.dirname(core_files[0]), "ALL_CORE.dat")
         append_files(core_files, all_core_path)
     else:
         print("Core files missing, skipping ALL_CORE.dat creation")
 
     if all(custom_files):
-        all_custom_path = os.path.join(os.path.dirname(custom_files[0]), "ALL_CUSTOM.dat")
         append_files(custom_files, all_custom_path)
     else:
         print("Custom files missing, skipping ALL_CUSTOM.dat creation")
 
+    # Save ALL_DIRECTORY.json
+    all_completes_ids_path = os.path.abspath("All_Completes_ids.json")
+    all_completes_dir = os.path.dirname(all_completes_ids_path)
+    sample_save_dir = save_dir if save_dir else base_directory
+    all_directory_json_path = os.path.join(all_completes_dir, "ALL_DIRECTORY.json")
+    all_directory_content = {
+        "base_directory": sample_save_dir.replace("/", "\\")
+    }
+    with open(all_directory_json_path, "w") as jf:
+        json.dump(all_directory_content, jf, indent=2)
+    print(f"ALL_DIRECTORY.json saved at {all_directory_json_path} with:")
+    print(all_directory_content)
+
 if __name__ == "__main__":
     main()
-
-sample_save_dir = save_dir if save_dir else base_directory  # fallback to base_directory if no save_dir
-
-# Prepare JSON content with the Combined folder path
-if os.path.exists(all_directory_json_path):
-    os.remove(all_directory_json_path)
-    print(f"🗑️ Deleted existing {all_directory_json_path}")
-    
-all_directory_json_path = os.path.join(all_completes_dir, "ALL_DIRECTORY.json")
-all_directory_content = {
-    "base_directory": sample_save_dir.replace("/", "\\")  # Windows style slashes
-}
-
-# Write the JSON file
-with open(all_directory_json_path, "w") as jf:
-    json.dump(all_directory_content, jf, indent=2)
-
-print(f"ALL_DIRECTORY.json saved at {all_directory_json_path} with:")
-print(all_directory_content)
