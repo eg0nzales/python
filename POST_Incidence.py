@@ -57,7 +57,6 @@ def download_survey_data(survey_id, survey_type):
                 if 'status' not in df.columns:
                     return None
 
-                df = df[df['status'] == 3].copy()
                 if 'Survey start time' not in df.columns:
                     return None
                 if 'Survey end time' not in df.columns:
@@ -90,6 +89,11 @@ def save_files_by_vendor(df, survey_type):
         file_vendor_name = "Dynata" if vendor_name == "SSI" else vendor_name
 
         vendor_df = df[df['Vendor'] == vendor_id]
+
+        # 🔹 Apply conditional filter
+        if vendor_name != "Cint":
+            vendor_df = vendor_df[vendor_df['status'] == 3]
+
         if vendor_df.empty:
             continue
 
@@ -106,6 +110,9 @@ def save_files_by_vendor(df, survey_type):
         file_path = os.path.join(folder_path, file_name)
 
         vendor_df.to_csv(file_path, index=False)
+
+        # Log row count
+        print(f"Saved {len(vendor_df)} rows for {vendor_name} ({survey_type}) → {file_path}")
 
 # Process surveys
 df1 = download_survey_data(survey_id_1, "Syndicate")
