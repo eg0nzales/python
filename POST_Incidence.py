@@ -22,13 +22,15 @@ base_folder_path = directory_incidence["base_directory"]
 api_key = "uqdpv1ehf12fc3bangxb9kh4m7y0wbp5ffrp87qxt5kssvsxcfncfqm3d4z6dvnm"
 server_domain = "https://nrc.decipherinc.com/api/v1/"
 
-vendor_mapping = {
-    1: "SSI",
-    7: "Cint",
-    2: "Toluna",
-    6: "Prodege",
-    3: "MyPoints"
+vendor_groups = {
+    "SSI": [1],
+    "Cint": [7, 139],
+    "Toluna": [2],
+    "Prodege": [6],
+    "MyPoints": [3]
 }
+
+vendor_mapping = {vendor_id: name for name, ids in vendor_groups.items() for vendor_id in ids}
 
 vendors_folders = {
     "Cint": "Cint",
